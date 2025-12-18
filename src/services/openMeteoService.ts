@@ -1,4 +1,5 @@
 import { fetchWeatherApi } from "openmeteo";
+import { withRetry } from "./retry";
 import type {
   Coordinates,
   UnitOptions,
@@ -54,7 +55,7 @@ export async function getCurrentWeather(
     timezone: units.timezone,
   } as const;
 
-  const res = await fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params);
+  const res = await withRetry(() => fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params));
   const response = res[0];
   const current = response.current();
   if (!current) throw new Error("Missing current weather data");
@@ -96,7 +97,7 @@ export async function getHourlyForecastForDate(
     timezone: units.timezone,
   } as const;
 
-  const res = await fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params);
+  const res = await withRetry(() => fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params));
   const response = res[0];
   const hourly = response.hourly();
   if (!hourly) return [];
@@ -141,7 +142,7 @@ export async function getDailyForecast(
     timezone: units.timezone,
   } as const;
 
-  const res = await fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params);
+  const res = await withRetry(() => fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params));
   const response = res[0];
   const daily = response.daily();
   if (!daily) return [];
@@ -164,6 +165,19 @@ export async function getDailyForecast(
     });
   }
   return out;
+}
+
+export function toApiDateISO(date: Date, timezone: string | undefined): string {
+  // If API timezone is provided (e.g., "America/New_York"), format the date in that zone at 00:00.
+  // Fallback to local date if not provided.
+  try {
+    if (timezone && 'Intl' in globalThis && 'DateTimeFormat' in Intl) {
+      const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' });
+      const parts = Object.fromEntries(fmt.formatToParts(date).map(p => [p.type, p.value]));
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }
+  } catch {}
+  return date.toISOString().slice(0,10);
 }
 
 // WMO weather code documentation moved to weatherCode.ts for usage.

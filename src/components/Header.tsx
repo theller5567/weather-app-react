@@ -30,22 +30,22 @@ export default function Header({ tempUnit, setTempUnit }: HeaderProps) {
         <img src={logo} alt="Weather App Logo" />
       </div>
       <div className="units-dropdown" ref={containerRef}>
-        <button className="units-dropdown-button" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <button className="units-dropdown-button" aria-haspopup="menu" aria-controls="units-menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
           Units
         </button>
         {open && (
-        <div className="dropdown-menu" data-metric={tempUnit === 'fahrenheit' ? 'imperial' : 'metric'}>
+        <div id="units-menu" role="menu" className="dropdown-menu" data-metric={tempUnit === 'fahrenheit' ? 'imperial' : 'metric'}>
           <button onClick={() => { setTempUnit(prev => prev === 'fahrenheit' ? 'celsius' : 'fahrenheit') }}>
             Switch to {tempUnit === 'fahrenheit' ? 'Metric' : 'Imperial'}
           </button>
           <div className="unit">
             <p>Temperature</p>
             <div className="dropdown-menu-items">
-              <div className="dropdown-menu-item metric">
+              <div className="dropdown-menu-item metric" role="menuitemradio" aria-checked={tempUnit !== 'fahrenheit'} tabIndex={0} onKeyDown={(e) => { if (e.key==='Enter' || e.key===' ') setTempUnit('celsius') }} onClick={() => setTempUnit('celsius')}>
                 <p>Celsius(°C)</p>
                 <img src={iconCheckmark} alt="Checkmark" />
               </div>
-              <div className="dropdown-menu-item imperial">
+              <div className="dropdown-menu-item imperial" role="menuitemradio" aria-checked={tempUnit === 'fahrenheit'} tabIndex={0} onKeyDown={(e) => { if (e.key==='Enter' || e.key===' ') setTempUnit('fahrenheit') }} onClick={() => setTempUnit('fahrenheit')}>
                 <p>Fahrenheit(°F)</p>
                 <img src={iconCheckmark} alt="Checkmark" />
               </div>
