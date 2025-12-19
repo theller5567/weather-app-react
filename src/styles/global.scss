@@ -267,16 +267,20 @@ nav {
     display: grid;
     /* Allow to shrink within grid track to avoid pushing columns */
     min-inline-size: 0;
+    width: 100%;
     .data-items {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        align-items: stretch;
         gap: 2rem;
+        @media (max-width: 50rem) {
+            grid-template-columns: repeat(2, 1fr);
+        }
         div {
             background-color: var(--clr-neutral-800);
             padding: 1rem;
             border-radius: 0.5rem;
-            width: 100%;
+            min-inline-size: 0;
             display: grid;
             gap: 2rem;
         }
@@ -307,6 +311,8 @@ nav {
     border-radius: 0.5rem;
     min-height: var(--hero-h);
     width: 100%;
+    min-inline-size: 0;
+    overflow: hidden;
     &.skeleton {
         background-image: none;
         background-color: var(--clr-neutral-800);
